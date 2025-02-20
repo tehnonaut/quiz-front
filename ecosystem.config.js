@@ -12,7 +12,7 @@ const ecosystem = {
 			args: 'start',
 			cwd: '/',
 			instances: 'max',
-			exec_mode: 'cluster',
+			exec_mode: 'fork',
 			autorestart: true,
 			watch: '.',
 			log_date_format: 'YYYY-MM-DD HH:mm Z',
