@@ -1,4 +1,4 @@
-import dotenv from 'dotenv';
+const dotenv = require('dotenv');
 
 dotenv.config();
 
@@ -23,4 +23,4 @@ const ecosystem = {
 	],
 };
 
-export default ecosystem;
+module.exports = ecosystem;
