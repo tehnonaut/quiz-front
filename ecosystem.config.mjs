@@ -2,14 +2,11 @@ const ecosystem = {
   apps: [
     {
       name: "quiz.tools",
-      script: "npm",
+      script: "npx next start",
       args: "start",
-      cwd: "/",
-      instances: "max",
-      exec_mode: "cluster",
+      cwd: "/",          
       autorestart: true,
-      watch: false,
-      max_memory_restart: "1G",
+      watch: '.',
       env: {
         NODE_ENV: "production",
       },
