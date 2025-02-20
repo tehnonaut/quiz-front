@@ -1,4 +1,4 @@
-const config = {
+module.exports = {
   apps: [
     {
       name: 'quiz.tools',
@@ -13,6 +13,4 @@ const config = {
       }
     }
   ]
-};
-
-export default config;
+}; 
