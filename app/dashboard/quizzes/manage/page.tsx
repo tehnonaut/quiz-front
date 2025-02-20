@@ -1,6 +1,6 @@
 "use client";
 
-import { useForm, useFieldArray } from "react-hook-form";
+import { useForm, useFieldArray, Control } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { Button } from "@/components/ui/button";
@@ -42,10 +42,11 @@ import {
   updateQuizRequest,
 } from "@/api/quiz";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { CreateQuizRequest } from "@/api/quiz/types";
+import { CreateQuizRequest, QuestionType } from "@/api/quiz/types";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useToast } from "@/hooks/use-toast";
 import { useEffect, useMemo } from "react";
+import { Suspense } from "react";
 
 const choiceSchema = z.object({
   text: z.string().min(1, "Choice text is required"),
@@ -71,6 +72,14 @@ const quizSchema = z.object({
 type QuizFormValues = z.infer<typeof quizSchema>;
 
 export default function ManageQuizPage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <ManageQuizContent />
+    </Suspense>
+  );
+}
+
+function ManageQuizContent() {
   const queryClient = useQueryClient();
   const { toast } = useToast();
   const router = useRouter();
@@ -106,7 +115,7 @@ export default function ManageQuizPage() {
     enabled: !!quizId,
   });
 
-  const defaultValues: any = useMemo(() => {
+  const defaultValues: QuizFormValues = useMemo(() => {
     if (specficQuiz) {
       return {
         title: specficQuiz.title,
@@ -127,7 +136,7 @@ export default function ManageQuizPage() {
       description: "",
       duration: 45,
       isActive: true,
-      questions: [{ question: "", type: "answer" }],
+      questions: [{ question: "", type: "answer" as const }],
     };
   }, [specficQuiz]);
 
@@ -140,7 +149,7 @@ export default function ManageQuizPage() {
     if (specficQuiz) {
       form.reset(defaultValues);
     }
-  }, [specficQuiz]);
+  }, [defaultValues, form, specficQuiz]);
 
   const { fields, append, remove } = useFieldArray({
     control: form.control,
@@ -157,7 +166,7 @@ export default function ManageQuizPage() {
         question: q.question,
         answers: q.answers?.map((a) => a.text) || [],
         correctAnswers: [q.correctAnswer || ""],
-        type: q.type as any,
+        type: q.type as QuestionType,
       })),
     };
 
@@ -399,7 +408,7 @@ function ChoicesFieldArray({
   control,
   questionIndex,
 }: {
-  control: any;
+  control: Control<QuizFormValues>;
   questionIndex: number;
 }) {
   const { fields, append, remove } = useFieldArray({
