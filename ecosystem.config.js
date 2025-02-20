@@ -8,13 +8,12 @@ const ecosystem = {
 	apps: [
 		{
 			name: siteName,
-			script: 'npm',
-			args: 'start',
-			cwd: '/',
-			instances: 'max',
+			script: 'npm run start',
+			args: '',
+			cwd: './',
 			exec_mode: 'fork',
 			autorestart: true,
-			watch: '.',
+			watch: '.', 
 			log_date_format: 'YYYY-MM-DD HH:mm Z',
 			env: {
 				NODE_ENV: 'production',
