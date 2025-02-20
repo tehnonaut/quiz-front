@@ -21,6 +21,5 @@ jobs:
               git stash
               git pull
               npm i
-              npm run build
-              npx pm2 startOrReload ecosystem.config.js
+              npm run build              
             "
