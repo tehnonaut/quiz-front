@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
+import Image from "next/image";
 
 export default function QuizToolsLanding() {
   return (
@@ -31,13 +32,15 @@ export default function QuizToolsLanding() {
         <div className="max-w-2xl mx-auto text-center space-y-8">
           <h1 className="text-3xl font-bold">Quiz.Tools</h1>
           <p className="text-gray-600">
-          🎉 Welcome to the ultimate quiz platform! 📝 Here, you can create fun and exciting quizzes, challenge your friends, and test your knowledge in a super easy way! 🚀 Whether you want to learn something new 📚, play just for fun 🎮, or compete with others 🏆, this is the perfect place for you! Create, share, and enjoy endless quizzes anytime, anywhere! 🔥
+          <b>Welcome to the ultimate quiz platform!</b> Here, you can create fun and exciting quizzes, challenge your friends, and test your knowledge in a super easy way! Whether you want to learn something new, play just for fun, or compete with others, this is the perfect place for you! Create, share, and enjoy endless quizzes anytime, anywhere!
           </p>
           <div className="aspect-video w-full bg-gray-200 rounded-lg flex items-center justify-center text-gray-500">
-            <img
-              src="https://placehold.co/700x400"
+            <Image
+              src="./assets/images/quiz-abstract.jpg"
               alt="Quiz Tools Preview"
               className="rounded-lg"
+              width={700}
+              height={400}
             />
           </div>
         </div>
