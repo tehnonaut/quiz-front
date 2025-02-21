@@ -46,7 +46,7 @@ export default function QuizToolsLanding() {
       <footer className="mt-auto border-t bg-gray-100">
         <div className="container mx-auto px-4 py-8 text-center space-y-2">
           <p className="font-semibold">Quiz.Tools</p>
-          <p className="text-gray-600">Igor Miladinovic - Master Rad</p>
+          <p className="text-gray-600">Igor Miladinovic - Master Rad - Singidunum</p>
         </div>
       </footer>
     </div>

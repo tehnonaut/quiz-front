@@ -79,6 +79,8 @@ export default function Page() {
     console.log("Delete", id);
   };
 
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:8080";
+
   return (
     <>
       <header className="flex h-16 shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-[[data-collapsible=icon]]/sidebar-wrapper:h-12">
@@ -127,12 +129,12 @@ export default function Page() {
                         {quiz.title}
                         <br />
                         <p className="inline-flex items-center gap-1 text-sm text-gray-500">
-                          .../quiz/{quiz._id}
+                          {baseUrl}/quiz/{quiz._id}
                           <CopyIcon
                             size={16}
                             className="cursor-pointer"
                             onClick={() => {
-                              const URL = `${window.location.origin}/quiz/${quiz._id}`;
+                              const URL = `${baseUrl}/quiz/${quiz._id}`;
                               navigator.clipboard.writeText(URL);
                               toast({
                                 title: "Link copied",
