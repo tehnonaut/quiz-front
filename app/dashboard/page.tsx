@@ -79,7 +79,7 @@ export default function Page() {
     console.log("Delete", id);
   };
 
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:8080";
+  const baseUrl = process.env?.NEXT_PUBLIC_BASE_URL || "http://localhost:4000";
 
   return (
     <>
@@ -129,7 +129,7 @@ export default function Page() {
                         {quiz.title}
                         <br />
                         <p className="inline-flex items-center gap-1 text-sm text-gray-500">
-                          {baseUrl}/quiz/{quiz._id}
+                          <p className="text-xs py-2 px-4">{baseUrl}/quiz/{quiz._id}</p>
                           <CopyIcon
                             size={16}
                             className="cursor-pointer"
