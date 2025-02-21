@@ -30,7 +30,7 @@ import { useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { Input } from '@/components/ui/input';
 import Link from 'next/link';
-
+import { getBaseUrl } from '@/lib/utils';
 export default function Page() {
 	const [quizForDelete, setQuizForDelete] = useState('');
 
@@ -54,7 +54,7 @@ export default function Page() {
 		},
 	});
 
-	const baseUrl = process.env.NEXT_PUBLIC_BASE_URL ?? 'http://localhost:4000';
+	const baseUrl = getBaseUrl();
 
 	return (
 		<>
