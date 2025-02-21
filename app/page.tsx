@@ -31,10 +31,7 @@ export default function QuizToolsLanding() {
         <div className="max-w-2xl mx-auto text-center space-y-8">
           <h1 className="text-3xl font-bold">Quiz.Tools</h1>
           <p className="text-gray-600">
-            Lorem ipsum dolor sit amet consectetur, adipisicing elit. Iste
-            similique consequuntur, veritatis nobis, tempore eaque incidunt
-            voluptatibus illum dolorum repellat porro perferendis ipsam voluptas
-            recusandae rerum numquam unde cum odio.
+          🎉 Welcome to the ultimate quiz platform! 📝 Here, you can create fun and exciting quizzes, challenge your friends, and test your knowledge in a super easy way! 🚀 Whether you want to learn something new 📚, play just for fun 🎮, or compete with others 🏆, this is the perfect place for you! Create, share, and enjoy endless quizzes anytime, anywhere! 🔥
           </p>
           <div className="aspect-video w-full bg-gray-200 rounded-lg flex items-center justify-center text-gray-500">
             <img
