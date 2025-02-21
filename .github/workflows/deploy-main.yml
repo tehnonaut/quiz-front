@@ -22,4 +22,5 @@ jobs:
               git pull
               npm i
               npm run build
+              pm2 restart ${{ secrets.PROJECT_FOLDER_PROD }}
             "
