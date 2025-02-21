@@ -28,6 +28,8 @@ import {
 } from '@/components/ui/alert-dialog';
 import { useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
+import { Input } from '@/components/ui/input';
+import Link from 'next/link';
 
 export default function Page() {
 	const [quizForDelete, setQuizForDelete] = useState('');
@@ -52,14 +54,6 @@ export default function Page() {
 		},
 	});
 
-	const handleUpdate = (id: string) => {
-		console.log('Update', id);
-	};
-
-	const handleDelete = (id: string) => {
-		console.log('Delete', id);
-	};
-
 	const baseUrl = process.env?.NEXT_PUBLIC_BASE_URL || 'http://localhost:4000';
 
 	return (
@@ -80,9 +74,11 @@ export default function Page() {
 			<div className="flex flex-1 flex-col gap-4 p-4 pt-0">
 				<div className="flex items-center justify-between">
 					<h1 className="text-2xl font-bold">Quizzes</h1>
-					<Button>
-						<a href="/dashboard/quizzes/manage">Create Quiz</a>
-					</Button>
+					<Link href="/dashboard/quizzes/manage">
+						<Button variant="default" className="bg-green-600 text-white">
+							Create Quiz
+						</Button>
+					</Link>
 				</div>
 				{isPending ? (
 					<p className="flex items-center gap-4 justify-center pt-10">
@@ -97,7 +93,7 @@ export default function Page() {
 									<TableRow>
 										<TableHead>Title</TableHead>
 										<TableHead>Duration</TableHead>
-										<TableHead># of Questions</TableHead>
+										<TableHead>Questions</TableHead>
 										<TableHead>Active</TableHead>
 										<TableHead>Actions</TableHead>
 									</TableRow>
@@ -106,12 +102,12 @@ export default function Page() {
 									{data.map((quiz) => (
 										<TableRow key={quiz._id}>
 											<TableCell>
-												{quiz.title}
+												<strong> {quiz.title}</strong>
 												<br />
-												<p className="inline-flex items-center gap-1 text-sm text-gray-500">
-													<input
+												<p className="inline-flex items-center gap-1 text-sm text-gray-500 mt-2">
+													<Input
 														type="text"
-														className="text-xs py-2 px-4 bg-gray-100 rounded-md my-2 min-w-96"
+														className=" bg-gray-100 rounded-md my-2 min-w-48 md:min-w-96 hidden md:block"
 														defaultValue={`${baseUrl}/quiz/${quiz._id}`}
 														readOnly={true}
 														onClick={(e) => {
@@ -119,9 +115,9 @@ export default function Page() {
 															navigator.clipboard.writeText(e.currentTarget.value);
 														}}
 													/>
-													<CopyIcon
-														size={16}
-														className="cursor-pointer"
+													<Button
+														variant="outline"
+														size="icon"
 														onClick={() => {
 															const URL = `${baseUrl}/quiz/${quiz._id}`;
 															navigator.clipboard.writeText(URL);
@@ -130,7 +126,9 @@ export default function Page() {
 																description: 'The link has been copied to clipboard',
 															});
 														}}
-													/>
+													>
+														<CopyIcon size={16} className="cursor-pointer" />
+													</Button>
 												</p>
 											</TableCell>
 											<TableCell>{quiz.duration}min.</TableCell>
@@ -148,12 +146,13 @@ export default function Page() {
 													</DropdownMenuTrigger>
 													<DropdownMenuContent align="end">
 														<DropdownMenuLabel>Actions</DropdownMenuLabel>
-														<a href={`/dashboard/quizzes/${quiz._id}/results`}>
+														<Link href={`/dashboard/quizzes/manage?quizId=${quiz._id}`}>
+															<DropdownMenuItem>Edit Quiz</DropdownMenuItem>
+														</Link>
+														<Link href={`/dashboard/quizzes/${quiz._id}/results`}>
 															<DropdownMenuItem>See results</DropdownMenuItem>
-														</a>
-														<a href={`/dashboard/quizzes/manage?quizId=${quiz._id}`}>
-															<DropdownMenuItem>Update</DropdownMenuItem>
-														</a>
+														</Link>
+
 														<DropdownMenuSeparator />
 														<DropdownMenuItem onClick={() => setQuizForDelete(quiz._id)}>Delete</DropdownMenuItem>
 													</DropdownMenuContent>
@@ -169,9 +168,9 @@ export default function Page() {
 								<p className="text-center italic">
 									No quizzes found.
 									<br />
-									<a href="/dashboard/quizzes/manage" className="hover:underline font-bold">
+									<Link href="/dashboard/quizzes/manage" className="hover:underline font-bold">
 										Create your first quiz.
-									</a>
+									</Link>
 								</p>
 							</div>
 						)}
@@ -188,7 +187,11 @@ export default function Page() {
 					</AlertDialogHeader>
 					<AlertDialogFooter>
 						<AlertDialogCancel onClick={() => setQuizForDelete('')}>Cancel</AlertDialogCancel>
-						<AlertDialogAction onClick={() => deleteQuizMutation(quizForDelete)} disabled={isDeleting}>
+						<AlertDialogAction
+							onClick={() => deleteQuizMutation(quizForDelete)}
+							disabled={isDeleting}
+							className="bg-destructive hover:bg-destructive/90"
+						>
 							Delete
 						</AlertDialogAction>
 					</AlertDialogFooter>
