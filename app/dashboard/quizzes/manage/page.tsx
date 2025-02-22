@@ -27,7 +27,7 @@ import { createQuizRequest, getQuizRequest, updateQuizRequest } from '@/api/quiz
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { CreateQuizRequest, QuestionType } from '@/api/quiz/types';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { useToast } from '@/hooks/use-toast';
+import { toast, useToast } from '@/hooks/use-toast';
 import { useEffect, useMemo, useState } from 'react';
 import { Suspense } from 'react';
 import {
@@ -101,7 +101,17 @@ function ManageQuizContent() {
 	const [questionToDelete, setQuestionToDelete] = useState<number | null>(null);
 
 	const { mutate: createMutation, isPending: isCreating } = useMutation({
-		mutationFn: createQuizRequest,
+		mutationFn: async (body: CreateQuizRequest) => {
+			try {
+				await createQuizRequest(body);
+			} catch (error) {
+				toast({
+					title: 'Error creating quiz',
+					description: 'Please try again',
+					variant: 'destructive',
+				});
+			}
+		},
 		onSuccess: () => {
 			toast({
 				title: 'Quiz created',
@@ -127,8 +137,18 @@ function ManageQuizContent() {
 		queryKey: ['quiz', quizId],
 		queryFn: quizId
 			? async () => {
-					const data = await getQuizRequest(quizId);
-					return data;
+					try {
+						const data = await getQuizRequest(quizId);
+						return data;
+					} catch (error) {
+						toast({
+							title: 'Error fetching quiz',
+							description: 'Please try again',
+							variant: 'destructive',
+						});
+						router.push('/dashboard');
+						return null;
+					}
 			  }
 			: undefined,
 		enabled: !!quizId,

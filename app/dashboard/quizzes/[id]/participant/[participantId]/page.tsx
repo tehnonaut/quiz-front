@@ -10,22 +10,36 @@ import {
 	BreadcrumbSeparator,
 } from '@/components/ui/breadcrumb';
 import { SidebarTrigger } from '@/components/ui/sidebar';
-import { useParams } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 import { useQuery } from '@tanstack/react-query';
 import { getQuizParticipantResultsRequest } from '@/api/quiz';
-import { Badge } from '@/components/ui/badge';
+import { toast } from '@/hooks/use-toast';
 
 export default function QuizParticipantResultsPage() {
+	const router = useRouter();
 	const { id: quizId, participantId } = useParams();
 
-	const { data, isPending } = useQuery({
+	const { data, isPending, isError } = useQuery({
 		queryKey: ['getQuizParticipantResultsRequest', quizId, participantId],
-		queryFn: () =>
-			getQuizParticipantResultsRequest({
-				quizId: quizId as string,
-				participantId: participantId as string,
-			}),
+		queryFn: async () => {
+			try {
+				const res = await getQuizParticipantResultsRequest({
+					quizId: quizId as string,
+					participantId: participantId as string,
+				});
+				return res;
+			} catch (error) {
+				toast({
+					title: 'Error fetching participant results',
+					description: 'Please try again',
+					variant: 'destructive',
+				});
+				router.push(`/dashboard/quizzes/${quizId}/results`);
+				return null;
+			}
+		},
 		enabled: !!quizId && !!participantId,
+		retry: 1,
 	});
 
 	if (!data) return <p className="pt-10 text-center">Loading...</p>;
@@ -54,28 +68,27 @@ export default function QuizParticipantResultsPage() {
 					</Breadcrumb>
 				</div>
 			</header>
-			<div className="bg-muted p-4 rounded-xl">
-				<p className="font-bold text-xl mb-1">{data.quiz.title}</p>
-				<p className="text-gray-500 text-sm">{data.quiz.description}</p>
-			</div>
-			<div>
-				<div className="flex items-center gap-2 mb-2">
-					<h1 className="text-3xl font-bold">{data.participant.name}</h1>
-					<Badge variant={data.participant.isCompleted ? 'default' : 'destructive'}>
-						{data.participant.isCompleted ? 'Completed' : 'Not Completed'}
-					</Badge>
+			<div className="px-4 space-y-6">
+				<div className="">
+					<p className="font-bold text-2xl mb-1">Title: {data.quiz?.title}</p>
+					<p className="text-gray-500 text-sm">Description: {data.quiz?.description}</p>
 				</div>
-				<p>{data.participant.studentId}</p>
-			</div>
-			<div>
-				{data.results.map((result, index) => (
-					<div key={result.question} className="p-4 rounded-xl my-4 border">
-						<p className="text-lg font-bold">
-							{index + 1}. {result.question}
-						</p>
-						<p className="my-2">{result.answer}</p>
+				<div>
+					<div className="flex items-center gap-2 mb-2">
+						<h1 className="text-xl font-bold">Name: {data.participant?.name}</h1>
 					</div>
-				))}
+					<p>Student ID: {data.participant?.studentId}</p>
+				</div>
+				<div>
+					{(data.results ?? []).map((result, index) => (
+						<div key={result.question._id} className="p-4 rounded-xl my-4 border">
+							<p className="text-lg font-bold">
+								{index + 1}. {result.question?.question}
+							</p>
+							<p className="mt-2">{result.answer?.answer ?? 'No answer'}</p>
+						</div>
+					))}
+				</div>
 			</div>
 		</div>
 	);

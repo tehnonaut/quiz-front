@@ -12,10 +12,7 @@ export const getMe = async () => {
 
 		return user;
 	} catch (error: any) {
-		if (error?.status === 401) {
-			clearStorage();
-			window.location.href = '/signin';
-		}
+		throw error;
 	}
 };
 

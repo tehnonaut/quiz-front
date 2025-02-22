@@ -1,7 +1,7 @@
 import { toast } from '@/hooks/use-toast';
 import apiCall from '../api';
 import { Participant } from '../participant/types';
-import { CreateQuizRequest, Quiz, QuizParticipantResults, UpdateQuizRequest } from './types';
+import { AnswerResponse, CreateQuizRequest, Question, Quiz, QuizParticipantResults, UpdateQuizRequest } from './types';
 
 export const getQuizListRequest = async () => {
 	const { data } = await apiCall.get<{ quizzes: Quiz[] }>('/quiz');
@@ -49,9 +49,9 @@ export const getQuizParticipantResultsRequest = async ({ quizId, participantId }
 		participant: Participant;
 		quiz: Quiz;
 		results: {
-			answer: string;
+			answer: AnswerResponse;
+			question: Question;
 			correct: boolean;
-			question: string;
 		}[];
 	}>(`/quiz/${quizId}/participant/${participantId}`);
 

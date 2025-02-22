@@ -8,8 +8,25 @@ import dayjs from 'dayjs';
 import { Participant } from '@/api/participant/types';
 import { Quiz } from '@/api/quiz/types';
 import { useMutation, useQuery } from '@tanstack/react-query';
-import { getParticipantAnswers, saveParticipantAnswer, markParticipantAsFinished } from '@/api/participant';
-import QuizSuccess from './participant-success';
+import {
+	getParticipantAnswers,
+	saveParticipantAnswer,
+	markParticipantAsFinished,
+	getParticipant,
+} from '@/api/participant';
+import { toast } from '@/hooks/use-toast';
+import {
+	AlertDialog,
+	AlertDialogAction,
+	AlertDialogCancel,
+	AlertDialogContent,
+	AlertDialogDescription,
+	AlertDialogFooter,
+	AlertDialogHeader,
+	AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
+
+import { useRouter } from 'next/navigation';
 
 interface QuizQuestionsProps {
 	participant: Participant;
@@ -17,19 +34,58 @@ interface QuizQuestionsProps {
 }
 
 export default function QuizQuestions({ quizData, participant }: QuizQuestionsProps) {
+	const { data: participantData } = useQuery({
+		queryKey: ['getParticipant', participant._id],
+		queryFn: () => getParticipant(participant._id),
+		enabled: !!participant._id,
+		initialData: participant,
+		refetchInterval: 5000,
+	});
+
+	const [localParticipant, setLocalParticipant] = useState(participantData || participant);
+
+	const calculateTimeRemaining = () => {
+		if (!participantData) return 0;
+		const startTime = dayjs(participant.createdAt);
+		const endTime = startTime.add(quizData.duration, 'minutes');
+		const remainingSeconds = endTime.diff(dayjs(), 'second');
+		return Math.max(0, remainingSeconds);
+	};
+
 	const [answers, setAnswers] = useState<Record<string, string>>({});
-	const [timeRemaining, setTimeRemaining] = useState(quizData.duration * 60);
-	const [isFinished, setIsFinished] = useState(false);
+	const [timeRemaining, setTimeRemaining] = useState(45 * 60);
+	const [isCompleted, setisCompleted] = useState(false);
+	const [showExitDialog, setShowExitDialog] = useState(false);
 
 	const { mutate } = useMutation({ mutationFn: saveParticipantAnswer });
-	const { mutate: onUpdate } = useMutation({
-		mutationFn: markParticipantAsFinished,
-		onSuccess: () => setIsFinished(true),
+	const { mutate: onUpdate } = useMutation<Participant, Error, { participantId: string }>({
+		mutationFn: async ({ participantId }) => {
+			await markParticipantAsFinished({ participantId });
+			return participant; // Return the current participant to match expected type
+		},
+		onSuccess: (data: Participant) => {
+			setLocalParticipant(data);
+			setisCompleted(true);
+		},
 	});
 
 	const { data: participantAnswers } = useQuery({
 		queryKey: ['getParticipantAnswers', participant._id],
-		queryFn: () => getParticipantAnswers(participant._id),
+		queryFn: async () => {
+			try {
+				const res = await getParticipantAnswers(participant._id);
+				return res;
+			} catch (error) {
+				toast({
+					title: 'Error fetching participant answers',
+					description: 'Please try again',
+					variant: 'destructive',
+				});
+				//remove participantId from local storage
+				localStorage.removeItem('participantId');
+				return [];
+			}
+		},
 		enabled: !!participant._id,
 	});
 
@@ -46,35 +102,23 @@ export default function QuizQuestions({ quizData, participant }: QuizQuestionsPr
 
 	useEffect(() => {
 		const timer = setInterval(() => {
-			setTimeRemaining((prev) => (prev <= 0 ? 0 : prev - 1));
+			setTimeRemaining(calculateTimeRemaining());
 		}, 1000);
 
 		return () => clearInterval(timer);
-	}, []);
+	}, [participant.createdAt, quizData.duration]);
+
+	useEffect(() => {
+		if (participantData) {
+			setLocalParticipant(participantData);
+		}
+	}, [participantData]);
 
 	const onFinish = () => {
 		onUpdate({
 			participantId: participant._id,
 		});
 	};
-
-	useEffect(() => {
-		if (timeRemaining <= 0) {
-			onFinish();
-		}
-	}, [timeRemaining]);
-
-	useEffect(() => {
-		const createdAt = dayjs(participant.createdAt);
-		const now = dayjs();
-		const diff = now.diff(createdAt, 'minute');
-
-		setTimeRemaining((quizData.duration - diff) * 60);
-
-		if (diff >= quizData.duration) {
-			onFinish();
-		}
-	}, [participant]);
 
 	const handleChoiceChange = (questionId: string, value: string) => {
 		setAnswers((prev) => ({ ...prev, [questionId]: value }));
@@ -96,17 +140,24 @@ export default function QuizQuestions({ quizData, participant }: QuizQuestionsPr
 		});
 	};
 
-	if (isFinished) {
-		return <QuizSuccess />;
-	}
+	const handleExit = () => {
+		localStorage.removeItem('participantId');
+		setTimeout(() => {
+			window.location.href = `/quiz/${quizData._id}`;
+		}, 100);
+	};
+
 	return (
 		<div className="space-y-8">
 			<div className="bg-muted p-6 rounded-lg flex items-center justify-between">
 				<p>Number of questions: {quizData.questions.length}</p>
 				<h2 className="text-lg font-semibold">{quizData.title}</h2>
-				<div className={`flex items-center gap-2 italic ${timeRemaining <= 60 ? 'text-red-500' : ''}`}>
-					<ClockIcon size={20} />
-					{dayjs().startOf('day').second(timeRemaining).format('mm:ss')} minutes remaining
+				<div className="flex items-center gap-4">
+					<div className={`flex items-center gap-2 italic ${timeRemaining <= 60 ? 'text-red-500' : ''}`}>
+						<ClockIcon size={20} />
+						{Math.floor(timeRemaining / 60)}:{String(timeRemaining % 60).padStart(2, '0')} minutes remaining
+					</div>
+					{localParticipant.isCompleted && <span className="text-green-500">Submitted ✅</span>}
 				</div>
 			</div>
 
@@ -150,9 +201,36 @@ export default function QuizQuestions({ quizData, participant }: QuizQuestionsPr
 				</div>
 			))}
 
-			<Button className="w-full" onClick={() => onFinish()}>
-				Finish
-			</Button>
+			<div className="flex items-center gap-4 justify-center">
+				<Button className="max-w-96 min-w-48 bg-green-600 hover:bg-green-800" onClick={() => onFinish()}>
+					{isCompleted ? '✅ Quiz Submitted' : 'Finish'}
+				</Button>
+
+				<Button
+					variant="outline"
+					className="max-w-96 min-w-48 hover:bg-red-700 hover:text-white"
+					onClick={() => setShowExitDialog(true)}
+				>
+					Exit Quiz
+				</Button>
+			</div>
+
+			<AlertDialog open={showExitDialog}>
+				<AlertDialogContent>
+					<AlertDialogHeader>
+						<AlertDialogTitle>Are you sure you want to exit?</AlertDialogTitle>
+						<AlertDialogDescription>
+							This will end your quiz session. Make sure you have saved all your answers.
+						</AlertDialogDescription>
+					</AlertDialogHeader>
+					<AlertDialogFooter>
+						<AlertDialogCancel onClick={() => setShowExitDialog(false)}>Cancel</AlertDialogCancel>
+						<AlertDialogAction onClick={handleExit} className="bg-destructive hover:bg-destructive/90">
+							Exit Quiz
+						</AlertDialogAction>
+					</AlertDialogFooter>
+				</AlertDialogContent>
+			</AlertDialog>
 		</div>
 	);
 }

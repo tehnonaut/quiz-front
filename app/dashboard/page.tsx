@@ -172,7 +172,7 @@ export default function Page() {
 						) : (
 							<div className="pt-10 flex flex-col gap-5 items-center justify-center">
 								<CircleOffIcon className="text-red-500" size={32} />
-								<p className="text-center italic">
+								<p className="text-center">
 									No quizzes found.
 									<br />
 									<Link href="/dashboard/quizzes/manage" className="hover:underline font-bold">

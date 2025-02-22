@@ -6,26 +6,32 @@ import QuizQuestions from '@/components/participant-questions';
 import { useParams } from 'next/navigation';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { getQuizRequest } from '@/api/quiz';
-import { createParticipant, getParticipantInfo } from '@/api/participant';
+import { createParticipant, getParticipant } from '@/api/participant';
 import { Participant } from '@/api/participant/types';
 import { getStorageItem, setStorageItem } from '@/lib/storage';
 import { Quiz } from '@/api/quiz/types';
-
+import { toast } from '@/hooks/use-toast';
 export default function QuizPage() {
 	const [quizStarted, setQuizStarted] = useState(false);
-	const [participantDetails, setParticipantDetails] = useState<{
-		participantId: string;
-		name: string;
-		studentId: string;
-	}>({
-		participantId: '',
+	const [participantDetails, setParticipantDetails] = useState<Participant>({
+		_id: '',
+		quiz: '',
 		name: '',
 		studentId: '',
+		createdAt: '',
+		isCompleted: false,
 	});
 
 	const { id: quizId } = useParams();
 
-	const [quizData, setQuizData] = useState<Quiz | null>(null);
+	const [quizData, setQuizData] = useState<Quiz>({
+		_id: '',
+		title: '',
+		description: '',
+		duration: 0,
+		isActive: false,
+		questions: [],
+	});
 
 	const { data: quiz } = useQuery({
 		queryKey: ['do-quiz', quizId],
@@ -35,7 +41,21 @@ export default function QuizPage() {
 				setQuizData(quiz);
 				return quiz;
 			} catch (error) {
-				throw error;
+				toast({
+					title: 'Error fetching quiz',
+					description: 'Please try again',
+					variant: 'destructive',
+				});
+				const emptyQuiz = {
+					_id: '',
+					title: '',
+					description: '',
+					duration: 0,
+					isActive: false,
+					questions: [],
+				};
+				setQuizData(emptyQuiz);
+				return emptyQuiz;
 			}
 		},
 		enabled: !!quizId,
@@ -44,9 +64,8 @@ export default function QuizPage() {
 	const { mutate } = useMutation({
 		mutationFn: createParticipant,
 		onSuccess: (res: Participant) => {
-			const { _id: participantId, name, studentId } = res;
-			setParticipantDetails({ participantId, name, studentId });
-			setStorageItem('participantId', participantId);
+			setParticipantDetails(res);
+			setStorageItem('participantId', res._id);
 			setQuizStarted(true);
 		},
 	});
@@ -56,10 +75,17 @@ export default function QuizPage() {
 			const participantId = getStorageItem('participantId');
 
 			if (participantId) {
-				const participantInfo = await getParticipantInfo(participantId);
+				const participantInfo = await getParticipant(participantId);
 				if (participantInfo) {
-					setParticipantDetails({ participantId, name: participantInfo.name, studentId: participantInfo.studentId });
+					setParticipantDetails(participantInfo);
 					setQuizStarted(true);
+				} else {
+					localStorage.removeItem('participantId');
+					toast({
+						title: 'Error fetching participant',
+						description: 'Please try again',
+						variant: 'destructive',
+					});
 				}
 			}
 		};
@@ -76,18 +102,7 @@ export default function QuizPage() {
 			{!quizStarted ? (
 				<QuizForm onStart={startQuiz} quiz={quiz} />
 			) : (
-				quizData && (
-					<QuizQuestions
-						quizData={quizData}
-						participant={{
-							...participantDetails,
-							_id: participantDetails.participantId,
-							quiz: quizId as string,
-							createdAt: new Date().toISOString(),
-							isCompleted: false,
-						}}
-					/>
-				)
+				quizData && <QuizQuestions quizData={quizData} participant={participantDetails} />
 			)}
 		</div>
 	);

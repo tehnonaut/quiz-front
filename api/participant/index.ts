@@ -1,4 +1,4 @@
-import { useQuery } from '@tanstack/react-query';
+import { toast } from '@/hooks/use-toast';
 import apiCall from '../api';
 import { CreateParticipant, FinishParticipant, Participant, ParticipantAnswer, SaveParticipantAnswer } from './types';
 
@@ -9,7 +9,7 @@ export const createParticipant = async (body: CreateParticipant) => {
 };
 
 export const markParticipantAsFinished = async ({ participantId }: FinishParticipant) => {
-	await apiCall.put(`participant/${participantId}/finish`);
+	await apiCall.get(`participant/${participantId}/finish`);
 };
 
 export const saveParticipantAnswer = async ({ participantId, questionId, body }: SaveParticipantAnswer) => {
@@ -28,7 +28,18 @@ export const getParticipantAnswers = async (participantId: string) => {
 	}
 };
 
-export const getParticipantInfo = async (participantId: string) => {
-	const response = await apiCall.get<{ participant: Participant }>(`/participant/${participantId}`);
-	return response.data.participant;
+export const getParticipant = async (participantId: string) => {
+	try {
+		const response = await apiCall.get<{ participant: Participant }>(`/participant/${participantId}`);
+		return response.data.participant;
+	} catch (error) {
+		//remove participantId from local storage
+		localStorage.removeItem('participantId');
+		toast({
+			title: 'Error fetching participant',
+			description: 'Please try again',
+			variant: 'destructive',
+		});
+		return null;
+	}
 };
