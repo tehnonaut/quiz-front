@@ -1,12 +1,12 @@
 'use client';
 
 import * as React from 'react';
-import { AudioWaveform, Command, GalleryVerticalEnd, SquareTerminal } from 'lucide-react';
+import { List, SquarePen } from 'lucide-react';
 
 import Link from 'next/link';
 
-import { NavMain } from '@/components/nav-main';
-import { NavUser } from '@/components/nav-user';
+import { NavMain } from '@/components/dashboard-nav';
+import { NavUser } from '@/components/dashboard-nav-user';
 import {
 	Sidebar,
 	SidebarContent,
@@ -17,46 +17,31 @@ import {
 } from '@/components/ui/sidebar';
 
 const data = {
-	teams: [
-		{
-			name: 'Acme Inc',
-			logo: GalleryVerticalEnd,
-			plan: 'Enterprise',
-		},
-		{
-			name: 'Acme Corp.',
-			logo: AudioWaveform,
-			plan: 'Startup',
-		},
-		{
-			name: 'Evil Corp.',
-			logo: Command,
-			plan: 'Free',
-		},
-	],
 	navMain: [
 		{
-			title: 'Quizzes',
-			url: '#',
-			icon: SquareTerminal,
-			isActive: true,
-			items: [
-				{
-					title: 'All Quizzes',
-					url: '/dashboard',
-				},
-				{
-					title: 'Create Quiz',
-					url: '/dashboard/quizzes/manage',
-				},
-			],
+			id: 'all-quizzes', //id for the element
+			title: 'All Quizzes',
+			url: '/dashboard',
+			icon: List,
+		},
+		{
+			id: 'create-quiz', //id for the element
+			title: 'Create Quiz',
+			url: '/dashboard/quizzes/manage',
+			icon: SquarePen,
 		},
 	],
 };
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+	const [isSidebarOpen, setSidebarOpen] = React.useState(true);
+
+	const handleLinkClick = () => {
+		setSidebarOpen(false);
+	};
+
 	return (
-		<Sidebar collapsible="icon" {...props}>
+		<Sidebar collapsible="icon" aria-label="Main navigation" {...props}>
 			<SidebarHeader>
 				<SidebarMenuButton
 					size="lg"
@@ -73,7 +58,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 				</SidebarMenuButton>
 			</SidebarHeader>
 			<SidebarContent>
-				<NavMain items={data.navMain} />
+				<NavMain items={data.navMain} onLinkClick={handleLinkClick} />
 			</SidebarContent>
 			<SidebarFooter>
 				<NavUser />

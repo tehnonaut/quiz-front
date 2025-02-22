@@ -1,9 +1,13 @@
-import Link from 'next/link';
-import { Button } from '@/components/ui/button';
 import Image from 'next/image';
 import myImage from '../assets/images/quiz-abstract.jpg';
-import { NavHome } from '@/components/nav-home';
-import { FooterHome } from '@/components/footer-home';
+import { NavHome } from '@/components/guest-nav';
+import { FooterHome } from '@/components/guest-footer';
+
+export const metadata = {
+	title: 'Quiz Tools - Home',
+	description: 'Welcome to the quiz.tools platform! Create, share, and enjoy endless quizzes anytime, anywhere!',
+};
+
 export default function QuizToolsLanding() {
 	return (
 		<div className="min-h-screen flex flex-col bg-[#f5f5f5]">

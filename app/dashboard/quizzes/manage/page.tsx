@@ -4,12 +4,12 @@ import { useForm, useFieldArray, Control } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { Button } from '@/components/ui/button';
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage, FormDescription } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { PlusCircle, Trash2 } from 'lucide-react';
+import { PlusCircle, Trash2, MoveUp, MoveDown } from 'lucide-react';
 import { SidebarTrigger } from '@/components/ui/sidebar';
 import { Separator } from '@radix-ui/react-separator';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -47,10 +47,12 @@ const choiceSchema = z.object({
 
 const questionSchema = z
 	.object({
+		_id: z.string().optional(),
 		question: z.string().min(1, 'Question is required'),
 		type: z.enum(['answer', 'choice']),
 		answers: z.array(choiceSchema).optional(),
 		correctAnswers: z.array(z.string()).optional(),
+		quiz: z.string().optional(),
 	})
 	.refine(
 		(data) => {
@@ -123,7 +125,12 @@ function ManageQuizContent() {
 
 	const { data: specficQuiz } = useQuery({
 		queryKey: ['quiz', quizId],
-		queryFn: quizId ? () => getQuizRequest(quizId) : undefined,
+		queryFn: quizId
+			? async () => {
+					const data = await getQuizRequest(quizId);
+					return data;
+			  }
+			: undefined,
 		enabled: !!quizId,
 	});
 
@@ -135,6 +142,8 @@ function ManageQuizContent() {
 				duration: specficQuiz.duration,
 				isActive: specficQuiz.isActive,
 				questions: specficQuiz.questions.map((q) => ({
+					_id: q._id,
+					quiz: specficQuiz._id,
 					question: q.question,
 					type: q.type,
 					answers: q.answers?.map((a) => ({ text: a })) || [],
@@ -163,7 +172,7 @@ function ManageQuizContent() {
 		}
 	}, [defaultValues, form, specficQuiz]);
 
-	const { fields, append, remove } = useFieldArray({
+	const { fields, append, remove, move } = useFieldArray({
 		control: form.control,
 		name: 'questions',
 	});
@@ -175,6 +184,8 @@ function ManageQuizContent() {
 			duration: data.duration,
 			isActive: data.isActive,
 			questions: data.questions.map((q) => ({
+				_id: q._id,
+				quiz: q.quiz,
 				question: q.question,
 				answers: q.answers?.map((a) => a.text) || [],
 				correctAnswers: q.correctAnswers || [],
@@ -183,20 +194,10 @@ function ManageQuizContent() {
 		};
 
 		if (specficQuiz) {
-			const questionId = specficQuiz.questions.find((q) => q.question === body.questions[0].question)?._id;
-
 			updateMutation({
 				_id: specficQuiz._id,
-				body: {
-					...body,
-					questions: body.questions.map((q) => ({
-						...q,
-						_id: questionId || undefined,
-						quiz: specficQuiz._id || undefined,
-					})),
-				},
+				body,
 			});
-
 			return;
 		}
 
@@ -293,7 +294,10 @@ function ManageQuizContent() {
 												<Checkbox checked={field.value} onCheckedChange={field.onChange} />
 											</FormControl>
 											<div className="space-y-1 leading-none">
-												<FormLabel>Enable Quiz</FormLabel>
+												<FormLabel className="inline">Enable Quiz</FormLabel>
+												<FormDescription className="ml-2 inline">
+													(when enabled, the participants can see and answer the questions)
+												</FormDescription>
 											</div>
 										</FormItem>
 									)}
@@ -308,15 +312,69 @@ function ManageQuizContent() {
 							<CardContent className="space-y-6">
 								{fields.map((field, index) => (
 									<Card key={field.id}>
-										<CardContent className="pt-6 space-y-4">
+										<CardContent className="space-y-4">
+											<FormField
+												control={form.control}
+												name={`questions.${index}._id`}
+												render={({ field }) => (
+													<FormItem>
+														<FormControl>
+															<Input type="hidden" {...field} />
+														</FormControl>
+													</FormItem>
+												)}
+											/>
+											<FormField
+												control={form.control}
+												name={`questions.${index}.quiz`}
+												render={({ field }) => (
+													<FormItem>
+														<FormControl>
+															<Input type="hidden" {...field} />
+														</FormControl>
+													</FormItem>
+												)}
+											/>
 											<FormField
 												control={form.control}
 												name={`questions.${index}.question`}
 												render={({ field }) => (
 													<FormItem>
-														<FormLabel>Question {index + 1}</FormLabel>
+														<div className="relative h-9 flex items-center justify-between">
+															<FormLabel className="font-semibold text-l">Question {index + 1}</FormLabel>
+															<div className="absolute right-0 top-0 flex gap-2">
+																<Button
+																	type="button"
+																	variant="outline"
+																	size="sm"
+																	onClick={() => move(index, index - 1)}
+																	disabled={index === 0}
+																>
+																	<MoveUp className="w-4 h-4" />
+																</Button>
+																<Button
+																	type="button"
+																	variant="outline"
+																	size="sm"
+																	onClick={() => move(index, index + 1)}
+																	disabled={index === fields.length - 1}
+																>
+																	<MoveDown className="w-4 h-4" />
+																</Button>
+																<Button
+																	type="button"
+																	variant="outline"
+																	size="sm"
+																	className="border border-red-300 text-red-500"
+																	onClick={() => setQuestionToDelete(index)}
+																>
+																	<Trash2 className="w-4 h-4 mr-1 text-red-500" />
+																	Remove Question
+																</Button>
+															</div>
+														</div>
 														<FormControl>
-															<Input placeholder="Enter question" {...field} />
+															<Textarea placeholder="Enter question" {...field} />
 														</FormControl>
 														<FormMessage />
 													</FormItem>
@@ -363,20 +421,14 @@ function ManageQuizContent() {
 											{form.watch(`questions.${index}.type`) === 'choice' && (
 												<ChoicesFieldArray control={form.control} questionIndex={index} />
 											)}
-											<Button
-												type="button"
-												variant="outline"
-												size="sm"
-												className="mt-2 border border-red-300 text-red-500"
-												onClick={() => setQuestionToDelete(index)}
-											>
-												<Trash2 className="w-4 h-4 mr-1 text-red-500" />
-												Remove Question
-											</Button>
 										</CardContent>
 									</Card>
 								))}
-								<Button type="button" variant="outline" onClick={() => append({ question: '', type: 'answer' })}>
+								<Button
+									type="button"
+									variant="outline"
+									onClick={() => append({ question: '', type: 'answer', correctAnswers: [] })}
+								>
 									<PlusCircle className="w-4 h-4 mr-1" />
 									Add Question
 								</Button>
@@ -441,7 +493,7 @@ function ChoicesFieldArray({ control, questionIndex }: { control: Control<QuizFo
 								className="space-y-2"
 							>
 								{fields.map((choiceField, choiceIndex) => (
-									<div key={choiceField.id} className="flex items-center space-x-2">
+									<div key={`${choiceField.id}-${choiceIndex}`} className="flex items-center space-x-2">
 										<FormField
 											control={control}
 											name={`questions.${questionIndex}.answers.${choiceIndex}.text`}

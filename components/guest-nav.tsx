@@ -9,16 +9,16 @@ export function NavHome() {
 					Quiz.Tools
 				</Link>
 				<div className="flex items-center gap-4">
-					<a href="/login">
+					<Link href="/signin">
 						<Button variant="ghost" className="text-gray-600">
 							Login
 						</Button>
-					</a>
-					<a href="/register">
+					</Link>
+					<Link href="/signup">
 						<Button variant="default" className="bg-gray-900 text-white hover:bg-gray-800">
 							Register
 						</Button>
-					</a>
+					</Link>
 				</div>
 			</div>
 		</header>

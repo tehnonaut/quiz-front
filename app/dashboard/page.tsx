@@ -31,6 +31,7 @@ import { useToast } from '@/hooks/use-toast';
 import { Input } from '@/components/ui/input';
 import Link from 'next/link';
 import { getBaseUrl } from '@/lib/utils';
+
 export default function Page() {
 	const [quizForDelete, setQuizForDelete] = useState('');
 
@@ -72,13 +73,19 @@ export default function Page() {
 				</div>
 			</header>
 			<div className="flex flex-1 flex-col gap-4 p-4 pt-0">
-				<div className="flex items-center justify-between">
-					<h1 className="text-2xl font-bold">Quizzes</h1>
-					<Link href="/dashboard/quizzes/manage">
-						<Button variant="default" className="bg-green-600 text-white">
-							Create Quiz
-						</Button>
-					</Link>
+				<div>
+					<div className="flex items-center justify-between mb-4">
+						<h1 className="text-2xl font-bold">Quizzes</h1>
+						<Link href="/dashboard/quizzes/manage">
+							<Button variant="default" className="bg-green-600 text-white">
+								Create Quiz
+							</Button>
+						</Link>
+					</div>
+					<div className="flex items-center gap-2 text-sm">
+						When the quiz is active, participants can take it, when it is inactive they cant answer questions. You can
+						copy the link and send it to the participants.
+					</div>
 				</div>
 				{isPending ? (
 					<p className="flex items-center gap-4 justify-center pt-10">
@@ -92,8 +99,8 @@ export default function Page() {
 								<TableHeader>
 									<TableRow>
 										<TableHead>Title</TableHead>
-										<TableHead>Duration</TableHead>
-										<TableHead>Questions</TableHead>
+										<TableHead className="hidden lg:table-cell">Duration</TableHead>
+										<TableHead className="hidden lg:table-cell">Questions</TableHead>
 										<TableHead>Active</TableHead>
 										<TableHead>Actions</TableHead>
 									</TableRow>
@@ -131,8 +138,8 @@ export default function Page() {
 													</Button>
 												</p>
 											</TableCell>
-											<TableCell>{quiz.duration}min.</TableCell>
-											<TableCell>{quiz.questions.length || 0}</TableCell>
+											<TableCell className="hidden lg:table-cell">{quiz.duration}min</TableCell>
+											<TableCell className="hidden lg:table-cell">{quiz.questions.length || 0}</TableCell>
 											<TableCell>
 												{quiz.isActive ? <Check size={18} color="green" /> : <X size={18} color="#c00" />}
 											</TableCell>
