@@ -47,7 +47,7 @@ export default function QuizForm({ onStart, quiz }: QuizFormProps) {
 					</div>
 					<div className="mb-6">
 						<h1 className="text-xl font-bold mb-1">{quiz?.title || `Quiz Title`}</h1>
-						<p className="text-gray-500 text-sm">{quiz?.description || `Quiz Description`}</p>
+						<p className="text-gray-500 text-sm">{quiz?.description || ''}</p>
 					</div>
 					<div>
 						<Label htmlFor="name">Full Name</Label>

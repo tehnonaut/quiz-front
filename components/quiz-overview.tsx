@@ -11,6 +11,7 @@ import { Participant } from '@/api/participant/types';
 import { getStorageItem, setStorageItem } from '@/lib/storage';
 import { Quiz } from '@/api/quiz/types';
 import { toast } from '@/hooks/use-toast';
+import { AxiosError } from 'axios';
 
 export const QuizOverview = () => {
 	const [quizStarted, setQuizStarted] = useState(false);
@@ -42,9 +43,10 @@ export const QuizOverview = () => {
 				setQuizData(quiz);
 				return quiz;
 			} catch (error) {
+				const message = error instanceof AxiosError ? error.response?.data.message : 'Unknown error fetching quiz';
 				toast({
 					title: 'Error fetching quiz',
-					description: 'Please try again',
+					description: message,
 					variant: 'destructive',
 				});
 				const emptyQuiz = {

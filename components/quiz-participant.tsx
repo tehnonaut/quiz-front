@@ -85,7 +85,13 @@ export const QuizParticipant = () => {
 							<p className="text-lg font-bold">
 								{index + 1}. {result.question?.question}
 							</p>
-							<p className="mt-2">{result.answer?.answer ?? 'No answer'}</p>
+							<p className="mt-4 text-gray-500">{result.answer?.answer ?? 'Not answered'}</p>
+							{typeof result?.answer?.isCorrect === 'boolean' &&
+								(result?.answer?.isCorrect ? (
+									<p className="mt-4 text-gray-500">✅ Correct</p>
+								) : (
+									<p className="mt-4 text-gray-500">❌ Incorrect</p>
+								))}
 						</div>
 					))}
 				</div>

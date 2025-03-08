@@ -51,7 +51,6 @@ export const getQuizParticipantResultsRequest = async ({ quizId, participantId }
 		results: {
 			answer: AnswerResponse;
 			question: Question;
-			correct: boolean;
 		}[];
 	}>(`/quiz/${quizId}/participant/${participantId}`);
 

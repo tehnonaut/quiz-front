@@ -55,4 +55,5 @@ export type AnswerResponse = {
 	question: string;
 	participant: string;
 	quiz: string;
+	isCorrect?: boolean;
 };

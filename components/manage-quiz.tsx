@@ -40,6 +40,7 @@ import {
 	AlertDialogHeader,
 	AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
+import { AxiosError } from 'axios';
 
 const choiceSchema = z.object({
 	text: z.string().min(1, 'Choice text is required'),
@@ -141,9 +142,10 @@ function ManageQuizContent() {
 						const data = await getQuizRequest(quizId);
 						return data;
 					} catch (error) {
+						const message = error instanceof AxiosError ? error.response?.data.message : 'Unknown error fetching quiz';
 						toast({
 							title: 'Error fetching quiz',
-							description: 'Please try again',
+							description: message,
 							variant: 'destructive',
 						});
 						router.push('/dashboard');
