@@ -3,7 +3,7 @@ import { NavHome } from '@/components/guest-nav';
 import { FooterHome } from '@/components/guest-footer';
 
 export const metadata = {
-	title: 'Quiz Tools - Login',
+	title: 'Quiz Tools  - Login',
 	description: 'Login to the quiz.tools platform! Create, share, and enjoy endless quizzes anytime, anywhere!',
 };
 

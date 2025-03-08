@@ -1,3 +1,3 @@
 export enum QueryKeys {
-  USER = "auth/user",
+	USER = 'auth/user',
 }

@@ -12,7 +12,6 @@ export default function QuizToolsLanding() {
 	return (
 		<div className="min-h-screen flex flex-col bg-[#f5f5f5]">
 			<NavHome />
-
 			<main className="flex-1 container mx-auto px-4 py-12 my-16">
 				<div className="max-w-4xl mx-auto text-center space-y-20">
 					<h1 className="text-3xl font-bold">Quiz.Tools</h1>
@@ -27,7 +26,6 @@ export default function QuizToolsLanding() {
 					</div>
 				</div>
 			</main>
-
 			<FooterHome />
 		</div>
 	);

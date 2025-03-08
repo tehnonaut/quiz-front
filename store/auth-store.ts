@@ -1,19 +1,19 @@
-import { create } from "zustand";
+import { create } from 'zustand';
 
-import type { UserResponse } from "../api/user/types";
+import type { UserResponse } from '../api/user/types';
 
 interface AuthStore {
-  isAuthenticated: boolean;
-  setIsAuthenticated: (isAuthenticated: boolean) => void;
+	isAuthenticated: boolean;
+	setIsAuthenticated: (isAuthenticated: boolean) => void;
 
-  user?: UserResponse;
-  setUser: (user: UserResponse) => void;
+	user?: UserResponse;
+	setUser: (user: UserResponse) => void;
 }
 
 export const useAuthStore = create<AuthStore>((set) => ({
-  isAuthenticated: false,
-  setIsAuthenticated: (isAuthenticated: boolean) => set({ isAuthenticated }),
+	isAuthenticated: false,
+	setIsAuthenticated: (isAuthenticated: boolean) => set({ isAuthenticated }),
 
-  user: undefined,
-  setUser: (user: UserResponse) => set({ user }),
+	user: undefined,
+	setUser: (user: UserResponse) => set({ user }),
 }));
