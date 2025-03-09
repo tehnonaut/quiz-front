@@ -5,6 +5,8 @@ export type Participant = {
 	studentId: string;
 	createdAt: string;
 	isCompleted: boolean;
+	points: number;
+	isGraded: boolean;
 };
 
 export type CreateParticipant = {

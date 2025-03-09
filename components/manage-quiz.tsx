@@ -51,6 +51,7 @@ const questionSchema = z
 		_id: z.string().optional(),
 		question: z.string().min(1, 'Question is required'),
 		type: z.enum(['answer', 'choice']),
+		points: z.number().min(1, 'Points must be at least 1').default(1),
 		answers: z.array(choiceSchema).optional(),
 		correctAnswers: z.array(z.string()).optional(),
 		quiz: z.string().optional(),
@@ -170,6 +171,7 @@ function ManageQuizContent() {
 					type: q.type,
 					answers: q.answers?.map((a) => ({ text: a })) || [],
 					correctAnswers: q.correctAnswers || [],
+					points: q.points,
 				})),
 			};
 		}
@@ -179,7 +181,7 @@ function ManageQuizContent() {
 			description: '',
 			duration: 45,
 			isActive: false,
-			questions: [{ question: '', type: 'answer' as const }],
+			questions: [{ question: '', type: 'answer' as const, points: 1 }],
 		};
 	}, [specficQuiz]);
 
@@ -212,6 +214,7 @@ function ManageQuizContent() {
 				answers: q.answers?.map((a) => a.text) || [],
 				correctAnswers: q.correctAnswers || [],
 				type: q.type as QuestionType,
+				points: q.points,
 			})),
 		};
 
@@ -390,8 +393,8 @@ function ManageQuizContent() {
 																	className="border border-red-300 text-red-500"
 																	onClick={() => setQuestionToDelete(index)}
 																>
-																	<Trash2 className="w-4 h-4 mr-1 text-red-500" />
-																	Remove Question
+																	<Trash2 className="w-4 h-4 md:mr-1 text-red-500" />
+																	<span className="text-red-500 md:inline hidden">Remove Question</span>
 																</Button>
 															</div>
 														</div>
@@ -404,9 +407,26 @@ function ManageQuizContent() {
 											/>
 											<FormField
 												control={form.control}
+												name={`questions.${index}.points`}
+												render={({ field }) => (
+													<FormItem className="w-full">
+														<FormLabel>Points</FormLabel>
+														<FormControl>
+															<Input
+																type="number"
+																{...field}
+																onChange={(e) => field.onChange(Number.parseInt(e.target.value, 10))}
+															/>
+														</FormControl>
+														<FormMessage />
+													</FormItem>
+												)}
+											/>
+											<FormField
+												control={form.control}
 												name={`questions.${index}.type`}
 												render={({ field }) => (
-													<FormItem>
+													<FormItem className="w-full">
 														<FormLabel>Question Type</FormLabel>
 														<Select
 															onValueChange={(value) => {
@@ -449,7 +469,7 @@ function ManageQuizContent() {
 								<Button
 									type="button"
 									variant="outline"
-									onClick={() => append({ question: '', type: 'answer', correctAnswers: [] })}
+									onClick={() => append({ question: '', type: 'answer', correctAnswers: [], points: 1 })}
 								>
 									<PlusCircle className="w-4 h-4 mr-1" />
 									Add Question

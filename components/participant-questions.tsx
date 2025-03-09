@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
@@ -56,6 +56,7 @@ export default function QuizQuestions({ quizData, participant }: QuizQuestionsPr
 	const [timeRemaining, setTimeRemaining] = useState(45 * 60);
 	const [isCompleted, setisCompleted] = useState(false);
 	const [showExitDialog, setShowExitDialog] = useState(false);
+	const hasSubmittedOnTimeout = useRef(false);
 
 	const { mutate } = useMutation({ mutationFn: saveParticipantAnswer });
 	const { mutate: onUpdate } = useMutation<Participant, Error, { participantId: string }>({
@@ -102,11 +103,25 @@ export default function QuizQuestions({ quizData, participant }: QuizQuestionsPr
 
 	useEffect(() => {
 		const timer = setInterval(() => {
-			setTimeRemaining(calculateTimeRemaining());
+			const remaining = calculateTimeRemaining();
+			setTimeRemaining(remaining);
+
+			// Auto-submit when time expires, but only once
+			if (remaining === 0 && !localParticipant.isCompleted && !hasSubmittedOnTimeout.current) {
+				hasSubmittedOnTimeout.current = true;
+				onFinish();
+			}
 		}, 1000);
 
 		return () => clearInterval(timer);
-	}, [participant.createdAt, quizData.duration]);
+	}, [participant.createdAt, quizData.duration, localParticipant.isCompleted]);
+
+	// Reset the ref when isCompleted changes
+	useEffect(() => {
+		if (localParticipant.isCompleted) {
+			hasSubmittedOnTimeout.current = true;
+		}
+	}, [localParticipant.isCompleted]);
 
 	useEffect(() => {
 		if (participantData) {
@@ -121,23 +136,30 @@ export default function QuizQuestions({ quizData, participant }: QuizQuestionsPr
 	};
 
 	const handleChoiceChange = (questionId: string, value: string) => {
-		setAnswers((prev) => ({ ...prev, [questionId]: value }));
+		// Prevent changes if time expired
+		if (timeRemaining === 0) return;
 
+		setAnswers((prev) => ({ ...prev, [questionId]: value }));
 		onSubmitToAPI(questionId, value);
 	};
 
 	const handleAnswerChange = (questionId: string, value: string) => {
+		// Prevent changes if time expired
+		if (timeRemaining === 0) return;
+
 		setAnswers((prev) => ({ ...prev, [questionId]: value }));
 	};
 
 	const onSubmitToAPI = (questionId: string, value: string) => {
-		mutate({
-			participantId: participant._id,
-			questionId,
-			body: {
-				answer: value,
-			},
-		});
+		if (value && value.trim() !== '') {
+			mutate({
+				participantId: participant._id,
+				questionId,
+				body: {
+					answer: value,
+				},
+			});
+		}
 	};
 
 	const handleExit = () => {
@@ -158,6 +180,7 @@ export default function QuizQuestions({ quizData, participant }: QuizQuestionsPr
 						{Math.floor(timeRemaining / 60)}:{String(timeRemaining % 60).padStart(2, '0')} minutes remaining
 					</div>
 					{localParticipant.isCompleted && <span className="text-green-500">Submitted ✅</span>}
+					{timeRemaining === 0 && !localParticipant.isCompleted && <span className="text-red-500">Time expired!</span>}
 				</div>
 			</div>
 
@@ -178,6 +201,7 @@ export default function QuizQuestions({ quizData, participant }: QuizQuestionsPr
 						<RadioGroup
 							onValueChange={(value) => handleChoiceChange(question._id, value)}
 							value={answers[question._id]}
+							disabled={timeRemaining === 0 || localParticipant.isCompleted}
 						>
 							{question.answers?.map((choice, index) => (
 								<div key={choice} className="flex items-center gap-x-2">
@@ -196,13 +220,18 @@ export default function QuizQuestions({ quizData, participant }: QuizQuestionsPr
 							onChange={(e) => handleAnswerChange(question._id, e.target.value)}
 							className="w-full min-h-[200px]"
 							onBlur={(e) => onSubmitToAPI(question._id, e.target.value)}
+							disabled={timeRemaining === 0 || localParticipant.isCompleted}
 						/>
 					)}
 				</div>
 			))}
 
 			<div className="flex items-center gap-4 justify-center">
-				<Button className="max-w-96 min-w-48 bg-green-600 hover:bg-green-800" onClick={() => onFinish()}>
+				<Button
+					className="max-w-96 min-w-48 bg-green-600 hover:bg-green-800"
+					onClick={() => onFinish()}
+					disabled={localParticipant.isCompleted}
+				>
 					{isCompleted ? '✅ Quiz Submitted' : 'Finish'}
 				</Button>
 

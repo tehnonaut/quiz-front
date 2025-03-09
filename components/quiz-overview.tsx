@@ -22,6 +22,8 @@ export const QuizOverview = () => {
 		studentId: '',
 		createdAt: '',
 		isCompleted: false,
+		points: 0,
+		isGraded: false,
 	});
 
 	const { id: quizId } = useParams();
@@ -33,6 +35,7 @@ export const QuizOverview = () => {
 		duration: 0,
 		isActive: false,
 		questions: [],
+		points: 0,
 	});
 
 	const { data: quiz } = useQuery({
@@ -56,6 +59,7 @@ export const QuizOverview = () => {
 					duration: 0,
 					isActive: false,
 					questions: [],
+					points: 0,
 				};
 				setQuizData(emptyQuiz);
 				return emptyQuiz;

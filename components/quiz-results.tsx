@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { SidebarTrigger } from '@/components/ui/sidebar';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { useQuery } from '@tanstack/react-query';
-import { CircleOffIcon, Loader, X } from 'lucide-react';
+import { CircleOffIcon, Loader, X, CheckCircle } from 'lucide-react';
 import { useParams } from 'next/navigation';
 import { Separator } from '@radix-ui/react-separator';
 
@@ -71,6 +71,8 @@ export const QuizResults = () => {
 									<TableRow>
 										<TableHead>Participant</TableHead>
 										<TableHead>Student ID</TableHead>
+										<TableHead>Points</TableHead>
+										<TableHead>Graded</TableHead>
 										<TableHead className="text-right">Actions</TableHead>
 									</TableRow>
 								</TableHeader>
@@ -79,6 +81,10 @@ export const QuizResults = () => {
 										<TableRow key={item._id}>
 											<TableCell>{item.name}</TableCell>
 											<TableCell>{item.studentId}</TableCell>
+											<TableCell>
+												<b>{item.points}</b> / {data.quiz.points}
+											</TableCell>
+											<TableCell>{item.isGraded && <CheckCircle className="text-gray-500" size={18} />}</TableCell>
 											<TableCell className="text-right">
 												<Link href={`/dashboard/quizzes/${id}/participant/${item._id}`}>
 													<Button>See results</Button>

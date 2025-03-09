@@ -3,6 +3,7 @@ export type Quiz = {
 	title: string;
 	description: string;
 	duration: number;
+	points: number;
 	isActive: boolean;
 	questions: Question[];
 };
@@ -15,6 +16,7 @@ export type CreateQuizRequest = {
 		question: string;
 		answers: string[];
 		correctAnswers: string[];
+		points: number;
 	}[];
 	duration: number;
 	isActive: boolean;
@@ -31,6 +33,7 @@ export type Question = {
 	question: string;
 	answers: string[];
 	correctAnswers: string[];
+	points: number;
 	quiz: string; // quiz id
 };
 
@@ -51,9 +54,21 @@ export type QuizParticipantResults = {
 };
 
 export type AnswerResponse = {
+	_id: string;
 	answer: string[];
 	question: string;
 	participant: string;
+	points?: number;
 	quiz: string;
 	isCorrect?: boolean;
+};
+
+export type ReviewAnswerRequest = {
+	quizId: string;
+	participantId: string;
+	answerId: string;
+	body: {
+		points: number;
+		isCorrect: boolean;
+	};
 };

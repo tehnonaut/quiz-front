@@ -1,4 +1,4 @@
-import { QuizParticipant } from '@/components/quiz-participant';
+import { QuizParticipant } from '@/components/quiz-results-participant';
 
 export const metadata = {
 	title: 'Quiz Tools - Quiz Participan Results',
