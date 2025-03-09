@@ -24,7 +24,7 @@ import { Label } from './ui/label';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
-import { CheckSquare, XSquare } from 'lucide-react';
+import { CheckSquare, SquareMinus, SquareSquare, XSquare } from 'lucide-react';
 import { Form } from './ui/form';
 import { Button } from './ui/button';
 import { Participant } from '@/api/participant/types';
@@ -100,14 +100,16 @@ function ReviewAnswer({ result, index }: { result: { answer: AnswerResponse; que
 				<div className="flex flex-col gap-2">
 					<p className="text-lg font-bold">
 						{index + 1}.{' '}
-						{typeof result.answer?.isCorrect === 'boolean' ? (
+						{result.answer === null ? (
+							<SquareMinus className="text-red-500 inline-block mx-2" />
+						) : typeof result.answer?.isCorrect === 'boolean' ? (
 							result.answer?.isCorrect ? (
 								<CheckSquare className="text-green-500 inline-block mx-2" />
 							) : (
 								<XSquare className="text-red-500 inline-block mx-2" />
 							)
 						) : (
-							''
+							<SquareSquare className="text-purple-400 inline-block mx-2" />
 						)}
 						{result.question?.question}
 					</p>
@@ -149,7 +151,7 @@ function ReviewAnswer({ result, index }: { result: { answer: AnswerResponse; que
 															});
 														}, 300);
 													}}
-													value={field.value ? 'correct' : 'incorrect'}
+													value={typeof field.value === 'boolean' ? (field.value ? 'correct' : 'incorrect') : ''}
 												>
 													<div className="flex gap-4">
 														<div className="flex items-center space-x-2">
@@ -180,7 +182,7 @@ function ReviewAnswer({ result, index }: { result: { answer: AnswerResponse; que
 													min={0}
 													max={result.question.points}
 													{...field}
-													disabled={!form.getValues().isCorrect}
+													disabled={typeof form.getValues().isCorrect !== 'boolean' || !form.getValues().isCorrect}
 													onChange={(e) => {
 														// Ensure points don't exceed maximum
 														let newValue = Number(e.target.value);
