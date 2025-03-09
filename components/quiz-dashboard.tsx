@@ -31,6 +31,7 @@ import { useToast } from '@/hooks/use-toast';
 import { Input } from '@/components/ui/input';
 import Link from 'next/link';
 import { getBaseUrl } from '@/lib/utils';
+import { Label } from '@radix-ui/react-label';
 
 export const QuizDashboard = () => {
 	const [quizForDelete, setQuizForDelete] = useState('');
@@ -77,7 +78,7 @@ export const QuizDashboard = () => {
 					<div className="flex items-center justify-between mb-4">
 						<h1 className="text-2xl font-bold">Quizzes</h1>
 						<Link href="/dashboard/quizzes/manage">
-							<Button variant="default" className="bg-green-600 text-white">
+							<Button variant="default" className="bg-green-800 text-white">
 								Create Quiz
 							</Button>
 						</Link>
@@ -109,12 +110,15 @@ export const QuizDashboard = () => {
 									{data.map((quiz) => (
 										<TableRow key={quiz._id}>
 											<TableCell>
-												<strong> {quiz.title}</strong>
+												<Label htmlFor="quiz-link" className="text-bold text-lg">
+													{quiz.title}
+												</Label>
 												<br />
 												<p className="inline-flex items-center gap-1 text-sm text-gray-500 mt-2">
 													<Input
+														id="quiz-link"
 														type="text"
-														className=" bg-gray-100 rounded-md my-2 min-w-48 md:min-w-96 hidden md:block"
+														className=" bg-gray-100 text-gray-800 rounded-md my-2 min-w-48 md:min-w-96 hidden md:block"
 														defaultValue={`${baseUrl}/quiz/${quiz._id}`}
 														readOnly={true}
 														onClick={(e) => {
@@ -125,6 +129,8 @@ export const QuizDashboard = () => {
 													<Button
 														variant="outline"
 														size="icon"
+														title="Copy link"
+														aria-label="Copy link"
 														onClick={() => {
 															const URL = `${baseUrl}/quiz/${quiz._id}`;
 															navigator.clipboard.writeText(URL);
@@ -175,7 +181,7 @@ export const QuizDashboard = () => {
 								<p className="text-center">
 									No quizzes found.
 									<br />
-									<Link href="/dashboard/quizzes/manage" className="hover:underline font-bold">
+									<Link href={'/dashboard/quizzes/manage'} className="hover:underline font-bold">
 										Create your first quiz.
 									</Link>
 								</p>

@@ -258,7 +258,7 @@ function ManageQuizContent() {
 					<div className="container mx-auto max-w-3xl space-y-8">
 						<div className="flex items-center justify-between">
 							<h1 className="text-3xl font-bold">{quizId ? 'Update Quiz' : 'Create Quiz'}</h1>
-							<Button type="submit" disabled={isCreating || isUpdating} className="bg-green-600 text-white">
+							<Button type="submit" disabled={isCreating || isUpdating} className="bg-green-800 text-white">
 								{quizId ? 'Update Quiz' : 'Create Quiz'}
 							</Button>
 						</div>
@@ -372,6 +372,8 @@ function ManageQuizContent() {
 																	type="button"
 																	variant="outline"
 																	size="sm"
+																	title="Move question up"
+																	aria-label="Move question up"
 																	onClick={() => move(index, index - 1)}
 																	disabled={index === 0}
 																>
@@ -381,6 +383,8 @@ function ManageQuizContent() {
 																	type="button"
 																	variant="outline"
 																	size="sm"
+																	title="Move question down"
+																	aria-label="Move question down"
 																	onClick={() => move(index, index + 1)}
 																	disabled={index === fields.length - 1}
 																>
@@ -390,11 +394,11 @@ function ManageQuizContent() {
 																	type="button"
 																	variant="outline"
 																	size="sm"
-																	className="border border-red-300 text-red-500"
+																	className="border border-red-600 text-red-600"
 																	onClick={() => setQuestionToDelete(index)}
 																>
-																	<Trash2 className="w-4 h-4 md:mr-1 text-red-500" />
-																	<span className="text-red-500 md:inline hidden">Remove Question</span>
+																	<Trash2 className="w-4 h-4 md:mr-1 text-red-600" />
+																	<span className="text-red-700 md:inline hidden">Remove Question</span>
 																</Button>
 															</div>
 														</div>
@@ -481,7 +485,7 @@ function ManageQuizContent() {
 								type="submit"
 								variant="default"
 								disabled={isCreating || isUpdating}
-								className="bg-green-600 text-white"
+								className="bg-green-800 text-white"
 							>
 								{quizId ? 'Update Quiz' : 'Create Quiz'}
 							</Button>

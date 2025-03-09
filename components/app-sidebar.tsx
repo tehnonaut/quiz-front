@@ -43,19 +43,19 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 	return (
 		<Sidebar collapsible="icon" aria-label="Main navigation" {...props}>
 			<SidebarHeader>
-				<SidebarMenuButton
-					size="lg"
-					className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
-				>
-					<div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
-						Q
-					</div>
-					<div className="grid flex-1 text-left text-sm leading-tight">
-						<Link href="/dashboard" className="truncate font-semibold">
-							Quiz.Tools
-						</Link>
-					</div>
-				</SidebarMenuButton>
+				<Link href={'/dashboard'}>
+					<SidebarMenuButton
+						size="lg"
+						className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
+					>
+						<div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
+							Q
+						</div>
+						<div className="grid flex-1 text-left text-sm leading-tight">
+							<div className="truncate font-semibold">Quiz.Tools</div>
+						</div>
+					</SidebarMenuButton>
+				</Link>
 			</SidebarHeader>
 			<SidebarContent>
 				<NavMain items={data.navMain} onLinkClick={handleLinkClick} />

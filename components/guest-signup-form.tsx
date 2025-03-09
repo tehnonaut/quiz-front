@@ -96,7 +96,7 @@ export function RegisterForm({ className, ...props }: React.ComponentPropsWithou
 						</div>
 						<div className="mt-4 text-center text-sm">
 							Already have an account?{' '}
-							<Link href="/signin" className="underline underline-offset-4">
+							<Link href={'/signin'} className="underline underline-offset-4">
 								Log in
 							</Link>
 						</div>
