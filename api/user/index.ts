@@ -27,6 +27,14 @@ export const login = async (body: LoginRequest) => {
 };
 
 export const logout = async () => {
+	//post token
+	try {
+		await apiCall.post('/user/logout');
+	} catch (error) {
+		console.error('Error during logout:', error);
+	}
+
+	// clear storage anyway
 	clearStorage();
 
 	window.location.href = '/signin';
