@@ -3,21 +3,28 @@
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { getStorageItem } from '@/lib/storage';
-import { jwtDecode } from 'jwt-decode';
+import { handleTokenRefresh } from '@/lib/token-utils';
+
 export const usePublicRoute = () => {
 	const router = useRouter();
 
 	useEffect(() => {
-		const token = getStorageItem('token');
+		const checkToken = async () => {
+			const token = getStorageItem('token');
 
-		//detect if the token is expired
-		if (token) {
-			const decodedToken = jwtDecode(token);
-			if (decodedToken.exp && decodedToken.exp < Date.now() / 1000) {
-				localStorage.removeItem('token');
+			if (token) {
+				try {
+					const validToken = await handleTokenRefresh();
+					if (validToken) {
+						router.push('/dashboard');
+					}
+					// If validToken is null, user stays on public route
+				} catch (error) {
+					console.error('Token validation failed:', error);
+				}
 			}
-		}
+		};
 
-		if (token) router.push('/dashboard');
-	}, []);
+		checkToken();
+	}, [router]);
 };
